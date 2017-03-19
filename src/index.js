@@ -3,9 +3,62 @@ import $ from 'jquery';
 import managersList from './ManagersList';
 import usersList from './UsersList';
 
-$(document).ready(() => { // This seems like overkill when using defer, but shit happens, someone may be using a super outdated browser
+const state = {
+  users: [],
+  managers: []
+};
 
-  managersList({containerId: '#managers', managers: ['Bob', 'Darleen']});
-  usersList({containerId: '#users', users: ['Bob', 'Darleen']});
+const changeManager = (user, managerId) => {
+  $.ajax({
+    url: `api/users/${user.id}`,
+    data: JSON.stringify({ managerId }),
+    method: 'PUT',
+    contentType: 'application/json'
+  })
+  .then(() => {
+    requestData();
+  });
+};
 
-});
+const promoteToManager = (user) => {
+  $.ajax({
+    url: `api/users/${user.id}`,
+    data: JSON.stringify({ isManager: true }),
+    method: 'PUT',
+    contentType: 'application/json'
+  })
+  .then(requestData);
+};
+
+const demoteFromManager = (user) => {
+  $.ajax({
+    url: `api/users/${user.id}`,
+    data: JSON.stringify({ isManager: false }),
+    method: 'PUT',
+    contentType: 'application/json'
+  })
+  .then(requestData);
+};
+
+const renderUserList = () => {
+  usersList({ containerId: '#users', users: state.users, managers: state.managers, changeManager, promoteToManager, demoteFromManager });
+};
+const renderManagerList = () => {
+  managersList({ containerId: '#managers', managers: state.managers });
+};
+
+const requestData = () => {
+  $.get('/api/users')
+    .then(users => {
+      state.users = users;
+      return $.get('/api/managers');
+    })
+    .then(managers => {
+      state.managers = managers;
+      renderUserList();
+      renderManagerList();
+    });
+};
+
+requestData();
+promoteToManager({ id: 1 });

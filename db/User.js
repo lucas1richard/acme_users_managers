@@ -1,6 +1,10 @@
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('user', {
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    isManager: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    }
   },
   {
     classMethods: {
