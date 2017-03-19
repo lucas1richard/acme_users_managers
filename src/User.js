@@ -9,10 +9,15 @@ const User = ({ user, managers, changeManager, promoteToManager, demoteFromManag
   let button;
   if (managers.filter(manager => manager.id === user.id).length) {
     button = $('<button class="btn btn-danger">Demote from Manager</button>');
-    button.on('click', () => demoteFromManager(user));
+    button.on('click', () => {
+      demoteFromManager(user);
+    });
   } else {
     button = $('<button class="btn btn-primary">Promote to Manager</button>');
-    button.on('click', () => promoteToManager(user));
+    button.on('click', () => {
+      console.log(user);
+      promoteToManager(user);
+    });
   }
 
   elem.body.append(button);

@@ -1,4 +1,4 @@
-module.exports = function(sequelize, DataTypes) {
+module.exports = (sequelize, DataTypes) => {
   return sequelize.define('user', {
     name: DataTypes.STRING,
     isManager: {
@@ -8,19 +8,39 @@ module.exports = function(sequelize, DataTypes) {
   },
   {
     classMethods: {
-      getManagersEmployees() {
+      getManagers() {
         return this.findAll({
-          include: [
-            { model: this, as: 'employee' }
-          ]
+          order: ['name'],
+          where: { isManager: true },
+          include: { model: this, as: 'manages', attributes: ['name'] }
         });
       },
-      getEmployeesManagers() {
+      getEmployees() {
         return this.findAll({
-          include: [
-            { model: this, as: 'manager' }
-          ]
+          order: ['name'],
+          include: { model: this, as: 'manager' }
         });
+      },
+      changeManager(id, managerId) {
+        return Promise.all([
+          this.findOne({ where: { id } }),
+          this.findOne({ where: { id: managerId * 1 } }),
+        ])
+        .then(twoUsers => {
+          const [ user, manager ] = twoUsers;
+          return user.setManager(manager);
+        });
+      },
+      goRogue(id) {
+        return this.findOne({ where: { id } })
+          .then(user => user.setManager(null));
+      },
+      promoteOrDemote(id, isMgr) {
+        return this.findOne({ where: { id } })
+          .then(user => {
+            user.isManager = isMgr;
+            return user.save();
+          });
       }
     }
   });

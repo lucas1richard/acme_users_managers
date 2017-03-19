@@ -2,54 +2,30 @@ const router = require('express').Router();
 const Users = require('../db').models.User;
 
 router.get('/api/users', (req, res, next) => {
-  Users.findAll({
-    order: ['name'],
-    include: { model: Users, as: 'manager' }
-  })
-  .then(users => {
-    res.json(users);
-  });
+  Users.getEmployees().then(users => res.json(users));
 });
 
 router.get('/api/managers', (req, res, next) => {
-  Users.findAll({
-    order: ['name'],
-    where: { isManager: true },
-    include: { model: Users, as: 'manages', attributes: ['name'] }
-  })
-  .then(users => {
-    res.json(users);
-  });
+  Users.getManagers().then(users => res.json(users));
 });
 
 router.put('/api/users/:id', (req, res, next) => {
   const id = req.params.id;
+
+  // Managed by manager
   if (req.body.managerId && req.body.managerId !== 'null') {
-    Promise.all([
-      Users.findOne({ where: { id } }),
-      Users.findOne({ where: { id: req.body.managerId * 1 } }),
-    ])
-    .then(twoUsers => {
-      const [ user, manager ] = twoUsers;
-      user.setManager(manager);
-    })
-    .then(res.send(`Manager Changed to ${req.body.managerId}`));
+    Users.changeManager(id, req.body.managerId)
+      .then(() => res.send(`Manager Changed to ${req.body.managerId}`));
   }
+
+  // Managed by no one
   if (req.body.managerId === 'null') {
-    Users.findOne({ where: { id } })
-      .then(user => {
-        user.manager_id = null;
-        return user.save();
-      })
-      .then(res.send(`Manager Changed to Null`));
+    Users.goRogue(id).then(() => res.send(`Manager Changed to Null`));
   }
+
+  // Promote or demote manager
   if (typeof req.body.isManager === 'boolean') {
-    Users.findOne({ where: { id } })
-      .then(user => {
-        user.isManager = req.body.isManager;
-        console.log(user);
-        return user.save();
-      })
+    Users.promoteOrDemote(id, req.body.isManager)
       .then(() => res.send('Manager'));
   }
 });

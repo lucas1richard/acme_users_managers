@@ -15,9 +15,8 @@ const changeManager = (user, managerId) => {
     method: 'PUT',
     contentType: 'application/json'
   })
-  .then(() => {
-    requestData();
-  });
+  .then(data => console.log(data))
+  .then(() => requestData());
 };
 
 const promoteToManager = (user) => {
@@ -27,7 +26,8 @@ const promoteToManager = (user) => {
     method: 'PUT',
     contentType: 'application/json'
   })
-  .then(requestData);
+  .then(data => console.log(data))
+  .then(() => requestData());
 };
 
 const demoteFromManager = (user) => {
@@ -37,7 +37,8 @@ const demoteFromManager = (user) => {
     method: 'PUT',
     contentType: 'application/json'
   })
-  .then(requestData);
+  .then(data => console.log(data))
+  .then(() => requestData());
 };
 
 const renderUserList = () => {
@@ -51,8 +52,8 @@ const requestData = () => {
   $.get('/api/users')
     .then(users => {
       state.users = users;
-      return $.get('/api/managers');
     })
+    .then(() => $.get('/api/managers'))
     .then(managers => {
       state.managers = managers;
       renderUserList();
@@ -61,4 +62,3 @@ const requestData = () => {
 };
 
 requestData();
-promoteToManager({ id: 1 });
