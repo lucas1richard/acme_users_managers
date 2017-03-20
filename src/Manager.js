@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import panel from './construct/Panel';
 
 const Manager = ({ manager }) => {

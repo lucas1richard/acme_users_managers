@@ -21,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
           include: { model: this, as: 'manager' }
         });
       },
+
+      // I was struggling to decide whether the methods below should be classMethods or instanceMethods,
+      // but as instanceMethods they seem to just add complexity by just changing the function names
       changeManager(id, managerId) {
         return Promise.all([
           this.findOne({ where: { id } }),
@@ -33,13 +36,29 @@ module.exports = (sequelize, DataTypes) => {
       },
       goRogue(id) {
         return this.findOne({ where: { id } })
-          .then(user => user.setManager(null));
+          .then(user => user.goRogue());
       },
-      promoteOrDemote(id, isMgr) {
+      promoteOrDemote(id) {
         return this.findOne({ where: { id } })
           .then(user => {
-            user.isManager = isMgr;
-            return user.save();
+            return user.promoteOrDemote();
+          });
+      }
+    },
+    instanceMethods: {
+      goRogue() {
+        return this.setManager(null);
+      },
+      promoteOrDemote() {
+        this.isManager = !this.isManager;
+        return this.save()
+          .then(() => {
+            // This is not done in a hook because I don't want it to fire every time a User gets updated,
+            // only when a user is demoted
+            if (!this.isManager) {
+              return sequelize.models.user.update({ manager_id: null }, { where: {manager_id: this.id} });
+            }
+            return this;
           });
       }
     }

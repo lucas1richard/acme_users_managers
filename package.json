@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "DATABASE_URL=postgres://localhost/acme_users_managers node_modules/mocha/bin/mocha test/**",
     "start": "DATABASE_URL=postgres://localhost/acme_users_managers nodemon server.js",
     "webpack": "./node_modules/webpack/bin/webpack.js -w"
   },
@@ -23,5 +23,9 @@
     "pg": "^6.1.4",
     "sequelize": "^3.30.2",
     "webpack": "^2.2.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
   }
 }

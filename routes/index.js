@@ -12,7 +12,7 @@ router.get('/api/managers', (req, res, next) => {
 router.put('/api/users/:id', (req, res, next) => {
   const id = req.params.id;
 
-  // Managed by manager
+  // Change manager
   if (req.body.managerId && req.body.managerId !== 'null') {
     Users.changeManager(id, req.body.managerId)
       .then(() => res.send(`Manager Changed to ${req.body.managerId}`));
@@ -24,8 +24,8 @@ router.put('/api/users/:id', (req, res, next) => {
   }
 
   // Promote or demote manager
-  if (typeof req.body.isManager === 'boolean') {
-    Users.promoteOrDemote(id, req.body.isManager)
+  if (typeof req.body.promoteOrDemote === 'boolean') {
+    Users.promoteOrDemote(id)
       .then(() => res.send('Manager'));
   }
 });

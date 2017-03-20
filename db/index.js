@@ -6,7 +6,7 @@ User.belongsTo(User, { as: 'manager', foreignKey: 'manager_id' });
 User.hasMany(User, { as: 'manages', foreignKey: 'manager_id' });
 
 const seed = () => {
-  sequelize.sync({ force: true })
+  return sequelize.sync({ force: true })
     .then(() => User.bulkCreate([
       { name: 'Bob', manager_id: null, isManager: true },
       { name: 'Deborah', manager_id: 1, isManager: true },

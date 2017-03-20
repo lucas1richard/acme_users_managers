@@ -17,6 +17,11 @@ app.use('/dist', express.static(path.join(__dirname, 'dist')));
 app.use(bodyParser.json({ extended: false }));
 app.use('/', require('./routes'));
 
+app.use((req, res, next) => {
+  res.locals.showTests = app.get('env') !== 'production' && req.query.test === '1';
+  next();
+});
+
 app.get('/', (req, res, next) => {
   res.render('index');
 });

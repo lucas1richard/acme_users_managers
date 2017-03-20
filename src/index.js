@@ -8,46 +8,6 @@ const state = {
   managers: []
 };
 
-const changeManager = (user, managerId) => {
-  $.ajax({
-    url: `api/users/${user.id}`,
-    data: JSON.stringify({ managerId }),
-    method: 'PUT',
-    contentType: 'application/json'
-  })
-  .then(data => console.log(data))
-  .then(() => requestData());
-};
-
-const promoteToManager = (user) => {
-  $.ajax({
-    url: `api/users/${user.id}`,
-    data: JSON.stringify({ isManager: true }),
-    method: 'PUT',
-    contentType: 'application/json'
-  })
-  .then(data => console.log(data))
-  .then(() => requestData());
-};
-
-const demoteFromManager = (user) => {
-  $.ajax({
-    url: `api/users/${user.id}`,
-    data: JSON.stringify({ isManager: false }),
-    method: 'PUT',
-    contentType: 'application/json'
-  })
-  .then(data => console.log(data))
-  .then(() => requestData());
-};
-
-const renderUserList = () => {
-  usersList({ containerId: '#users', users: state.users, managers: state.managers, changeManager, promoteToManager, demoteFromManager });
-};
-const renderManagerList = () => {
-  managersList({ containerId: '#managers', managers: state.managers });
-};
-
 const requestData = () => {
   $.get('/api/users')
     .then(users => {
@@ -60,5 +20,29 @@ const requestData = () => {
       renderManagerList();
     });
 };
+
+const putContent = { method: 'PUT', contentType: 'application/json' };
+
+const changeManager = (user, managerId) => {
+  $.ajax(Object.assign(
+      {}, putContent, { url: `api/users/${user.id}`, data: JSON.stringify({ managerId }) }
+  ))
+  .then(() => requestData());
+};
+
+const promoteOrDemote = (user) => {
+  $.ajax(Object.assign(
+    {}, putContent, { url: `api/users/${user.id}`, data: JSON.stringify({ promoteOrDemote: true }) }
+  ))
+  .then(() => requestData());
+};
+
+const renderUserList = () => {
+  usersList({ containerId: '#users', users: state.users, managers: state.managers, changeManager, promoteOrDemote });
+};
+const renderManagerList = () => {
+  managersList({ containerId: '#managers', managers: state.managers });
+};
+
 
 requestData();
