@@ -1,5 +1,5 @@
 module.exports = {
-  entry: './src/index.js',
+  entry: ['./src/index.js', './src/qa/tests-global.js'],
   output: {
     path: './dist',
     filename: 'bundle.js'

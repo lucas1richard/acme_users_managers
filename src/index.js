@@ -8,6 +8,8 @@ const state = {
   managers: []
 };
 
+let mochaRun = runMocha();
+
 const requestData = () => {
   $.get('/api/users')
     .then(users => {
@@ -18,6 +20,9 @@ const requestData = () => {
       state.managers = managers;
       renderUserList();
       renderManagerList();
+    })
+    .then(() => {
+      if (mocha) mochaRun();
     });
 };
 
@@ -46,3 +51,14 @@ const renderManagerList = () => {
 
 
 requestData();
+
+function runMocha() {
+  let executed = false;
+  return () => {
+    if (!executed) {
+      mocha.run();
+      executed = true;
+    }
+  };
+}
+
