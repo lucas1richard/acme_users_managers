@@ -8,7 +8,18 @@ const state = {
   managers: []
 };
 
-let mochaRun = runMocha();
+// Singleton for UI testing
+const runMocha = () => {
+  let executed = false;
+  return () => {
+    if (!executed) {
+      mocha.run();
+      executed = true;
+    }
+  };
+};
+
+const mochaRun = runMocha();
 
 const requestData = () => {
   $.get('/api/users')
@@ -22,12 +33,17 @@ const requestData = () => {
       renderManagerList();
     })
     .then(() => {
+      // Test the UI once
       if (mocha) mochaRun();
     });
 };
 
+// Too lazy to re-type this below
 const putContent = { method: 'PUT', contentType: 'application/json' };
 
+// I was debating whether or not to put changeManager and promoteOrDemote within renderUserList,
+// decided to leave them out because webpack will wrap them out of globals, and they could be
+// reused elsewhere if needed
 const changeManager = (user, managerId) => {
   $.ajax(Object.assign(
       {}, putContent, { url: `api/users/${user.id}`, data: JSON.stringify({ managerId }) }
@@ -45,20 +61,10 @@ const promoteOrDemote = (user) => {
 const renderUserList = () => {
   usersList({ containerId: '#users', users: state.users, managers: state.managers, changeManager, promoteOrDemote });
 };
+
 const renderManagerList = () => {
   managersList({ containerId: '#managers', managers: state.managers });
 };
 
-
 requestData();
-
-function runMocha() {
-  let executed = false;
-  return () => {
-    if (!executed) {
-      mocha.run();
-      executed = true;
-    }
-  };
-}
 

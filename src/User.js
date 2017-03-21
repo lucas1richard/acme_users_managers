@@ -1,7 +1,8 @@
 import $ from 'jquery';
+// This returns a panel with title and body
 import panel from './construct/Panel';
 
-const User = ({ user, managers, changeManager, promoteOrDemote  }) => {
+export default ({ user, managers, changeManager, promoteOrDemote  }) => {
 
   const elem = panel({ title: user.name });
   elem.body.append(promoteDemoteButton());
@@ -10,6 +11,8 @@ const User = ({ user, managers, changeManager, promoteOrDemote  }) => {
 
   return elem;
 
+
+  // Closure only works within User function
   function promoteDemoteButton() {
     let $button;
     if (user.isManager) {
@@ -21,21 +24,18 @@ const User = ({ user, managers, changeManager, promoteOrDemote  }) => {
     return $button;
   }
 
+  // Closure only works within User function
   function managerSelect() {
     const $select = $('<select class="form-control"><option value=null>None</option></select>');
     const options = [];
     managers.forEach(manager => {
-      if (user.manager && user.manager.id === manager.id) {
+      if (user.manager && user.manager.id === manager.id)
         options.push(`<option selected value=${manager.id}>${manager.name}</option>`);
-      }
-      else {
+      else
         options.push(`<option value=${manager.id}>${manager.name}</option>`);
-      }
     });
     $select.append(options.join(''));
     $select.on('change', () => changeManager(user, $select.val()));
     return $select;
   }
 };
-
-export default User;
